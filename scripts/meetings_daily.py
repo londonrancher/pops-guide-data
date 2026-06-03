@@ -104,39 +104,58 @@ def discover_meeting_ids(page) -> list[dict]:
     The schedule page renders each meeting as a card with a title and date,
     linking to MeetingInformation.aspx?Org=Cal&Id=<n>. We extract the link
     text, dates, and ids; later we fetch each individual page for full detail.
+
+    Resilient against slow renders: tries up to 4 times with longer waits
+    each time, looking for at least one anchor that carries an Id= param.
+    Without this, a quick-evaluate-before-hydration race can return 0
+    meetings — we observed exactly this on a clean GH Actions runner.
     """
     page.goto(SCHEDULE_URL, wait_until="domcontentloaded", timeout=30000)
-    # iCompass renders the list client-side; allow a tick for hydration.
-    page.wait_for_timeout(2500)
 
-    raw = page.evaluate(
-        """() => {
-          const items = [];
-          // Each meeting on the schedule page has an anchor to MeetingInformation.aspx
-          const anchors = document.querySelectorAll('a[href*="MeetingInformation.aspx"]');
-          anchors.forEach(a => {
-            const href = a.href;
-            const m = href.match(/Id=(\\d+)/);
-            if (!m) return;
-            // Walk up a few ancestors looking for a date string in the surrounding card
-            let card = a.closest('li, article, .card, .meeting, div');
-            const cardText = card ? card.innerText : a.innerText;
-            items.push({
-              id: parseInt(m[1], 10),
-              title: a.textContent.trim(),
-              href,
-              cardText,
-            });
-          });
-          // De-dup by id (each meeting tends to render in multiple lists)
-          const seen = new Set();
-          return items.filter(it => {
-            if (seen.has(it.id)) return false;
-            seen.add(it.id);
-            return !!it.title;
-          });
-        }"""
-    )
+    # Stage 1: wait for the network to settle. iCompass loads its meeting
+    # list asynchronously; the dom content event fires well before then.
+    try:
+        page.wait_for_load_state("networkidle", timeout=15000)
+    except Exception:
+        pass  # Some sites never reach networkidle; fall through to polling.
+
+    # Stage 2: poll for at least one Id-bearing anchor. Each meeting card
+    # exposes one. If we time out without finding any, error visibly so
+    # the workflow surfaces the issue instead of committing empty data.
+    raw = []
+    last_count = -1
+    for attempt in range(8):
+        page.wait_for_timeout(1500)
+        raw = page.evaluate(
+            """() => {
+              const items = [];
+              const anchors = document.querySelectorAll('a[href*="MeetingInformation.aspx"]');
+              anchors.forEach(a => {
+                const href = a.href;
+                const m = href.match(/Id=(\\d+)/);
+                if (!m) return;
+                let card = a.closest('li, article, .card, .meeting, div');
+                const cardText = card ? card.innerText : a.innerText;
+                items.push({
+                  id: parseInt(m[1], 10),
+                  title: a.textContent.trim(),
+                  href,
+                  cardText,
+                });
+              });
+              const seen = new Set();
+              return items.filter(it => {
+                if (seen.has(it.id)) return false;
+                seen.add(it.id);
+                return !!it.title;
+              });
+            }"""
+        )
+        if raw and len(raw) == last_count:
+            # List stabilized — same count two polls in a row.
+            break
+        last_count = len(raw)
+
     return raw
 
 
@@ -232,11 +251,18 @@ def main() -> int:
 
     meetings: list[dict] = []
     error = None
+    discovered_count = 0
 
     try:
         with headless_page() as page:
             discovered = discover_meeting_ids(page)
-            print(f"[{stamp_log_ct()}] meetings_daily: discovered {len(discovered)} meeting entries on schedule page")
+            discovered_count = len(discovered)
+            print(f"[{stamp_log_ct()}] meetings_daily: discovered {discovered_count} meeting entries on schedule page")
+            if discovered_count == 0:
+                # 0 discovered is almost always a render race or anti-bot
+                # block, not a real "city has no meetings" state. Refuse
+                # to overwrite the existing JSON with emptiness.
+                error = "0 meetings discovered on CivicWeb — refusing to overwrite existing data"
 
             for item in discovered:
                 mid = item.get("id")
@@ -310,6 +336,16 @@ def main() -> int:
     }
     if error:
         payload["error"] = error
+
+    # Refuse to write a totally-empty meetings list — that's almost always
+    # a fetch-race or anti-bot block. Preserve the existing JSON so the
+    # sites keep showing the last known meetings instead of going blank.
+    if discovered_count == 0:
+        print(
+            f"[{stamp_log_ct()}] meetings_daily: ABORT — 0 meetings discovered, leaving existing JSON intact",
+            file=sys.stderr,
+        )
+        return 2
 
     changed = write_json_atomic(OUTPUT, payload)
     note = "changed" if changed else "no change"
