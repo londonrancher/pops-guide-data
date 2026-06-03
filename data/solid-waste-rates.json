@@ -1,0 +1,22 @@
+{
+  "lastChecked": "2026-06-03T11:46:58-05:00",
+  "lastCheckedUtc": "2026-06-03T16:46:58Z",
+  "sources": {
+    "payingBill": "https://www.lakeway-tx.gov/207/Paying-Your-Bill",
+    "solidWasteMgmt": "https://www.lakeway-tx.gov/70/Solid-Waste-Management"
+  },
+  "sourcesReachable": {
+    "paying-bill": true,
+    "solid-waste-mgmt": true
+  },
+  "rates": {
+    "baseServiceQuarterly": null,
+    "additionalTrashCartQuarterly": null,
+    "additionalRecyclingCartMonthly": 7.0,
+    "lateFee": 10.0,
+    "reactivationFee": 75.0,
+    "reactivationDeposit": 75.0,
+    "lateFeeDayOfMonth": null,
+    "deactivationDayOfMonth": null
+  }
+}

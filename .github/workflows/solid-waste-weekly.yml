@@ -1,0 +1,67 @@
+name: Lakeway Solid Waste Rates (Mon 9 AM CT)
+
+on:
+  schedule:
+    # 14:00 UTC = 9 AM CDT / 8 AM CST. Mondays only.
+    - cron: '0 14 * * 1'
+  workflow_dispatch: {}
+
+permissions:
+  contents: write
+
+concurrency:
+  group: solid-waste-weekly
+  cancel-in-progress: false
+
+jobs:
+  refresh:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+          cache: pip
+
+      - name: Install Python deps
+        run: pip install -r requirements.txt
+
+      - name: Get Playwright version
+        id: pw-version
+        run: |
+          echo "version=$(python -c 'import playwright; print(playwright.__version__)')" >> "$GITHUB_OUTPUT"
+
+      - name: Cache Playwright browsers
+        id: pw-cache
+        uses: actions/cache@v4
+        with:
+          path: ~/.cache/ms-playwright
+          key: pw-${{ runner.os }}-${{ steps.pw-version.outputs.version }}
+
+      - name: Install Playwright Chromium binary (cache miss only)
+        if: steps.pw-cache.outputs.cache-hit != 'true'
+        run: python -m playwright install chromium
+
+      - name: Install Playwright OS dependencies (always — fresh VM each run)
+        run: python -m playwright install-deps chromium
+
+      - name: Refresh solid waste rates
+        env:
+          TZ: America/Chicago
+        run: python scripts/solid_waste.py
+
+      - name: Commit data/ if anything changed
+        run: |
+          git config user.name  "popsguide-bot"
+          git config user.email "popsguide-bot@users.noreply.github.com"
+          git add data/
+          if git diff --quiet --cached; then
+            echo "No data changes; skipping commit."
+          else
+            git commit -m "auto(solid-waste-weekly): $(date -u +'%Y-%m-%dT%H:%M:%SZ')"
+            git pull --rebase || true
+            git push
+          fi
