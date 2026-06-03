@@ -200,7 +200,13 @@ def check_district(d: dict) -> dict:
 
     text = BeautifulSoup(html, "html.parser").get_text(" ", strip=True)
 
+    # Stage detection: try clean text first (catches "Stage N" in visible
+    # page copy), then fall back to raw HTML (catches "Stage N Water
+    # Restrictions" embedded in <script> JSON, which is how Crossroads
+    # publishes its TCMUD stage info — the PDF filenames carry the stage).
     m = STAGE_PATTERNS.search(text)
+    if not m:
+        m = STAGE_PATTERNS.search(html)
     if m:
         try:
             state["stage"] = int(m.group(1))
