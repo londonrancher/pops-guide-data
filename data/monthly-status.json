@@ -1,0 +1,70 @@
+{
+  "lastChecked": "2026-06-03T11:53:15-05:00",
+  "lastCheckedUtc": "2026-06-03T16:53:15Z",
+  "checks": {
+    "walgreens24": {
+      "label": "Walgreens 24-Hour Pharmacy (6200 William Cannon, Austin)",
+      "phone": "+15128921933",
+      "status": "stale",
+      "httpStatus": 404,
+      "evidence": "HTTP 404"
+    },
+    "cvs24": {
+      "label": "CVS 24-Hour Pharmacy (2402 Guadalupe St, Austin)",
+      "phone": "+15124742323",
+      "status": "stale",
+      "httpStatus": 503,
+      "evidence": "HTTP 503"
+    },
+    "violetCrownVet": {
+      "label": "Violet Crown Veterinary Specialists 24/7",
+      "phone": "+15122842877",
+      "status": "ok",
+      "httpStatus": 200,
+      "evidence": "24/7 Emergency Vet & Specialty Hospital | Bee Cave, TX About U"
+    },
+    "gfiberAustin": {
+      "label": "GFiber Austin buildout",
+      "currentStatusInGuide": "building since Jan 2026",
+      "status": "ok",
+      "httpStatus": 200,
+      "evidence": null
+    },
+    "lcraOSSF": {
+      "label": "LCRA OSSF (septic) program",
+      "status": "ok",
+      "httpStatus": 200,
+      "evidence": null
+    },
+    "ltfrPermits": {
+      "label": "LTFR online permits portal",
+      "status": "unreachable",
+      "httpStatus": null,
+      "evidence": null
+    },
+    "voyentAlert": {
+      "label": "Voyent Alert! community signup",
+      "status": "ok",
+      "httpStatus": 200,
+      "evidence": null
+    },
+    "warnCentralTexas": {
+      "label": "Warn Central Texas / CodeRed",
+      "status": "ok",
+      "httpStatus": 200,
+      "evidence": null
+    },
+    "lthsBandFlagFundraiser": {
+      "label": "LTHS Band American Flag fundraiser",
+      "status": "ok",
+      "httpStatus": 200,
+      "evidence": null
+    },
+    "nextRequest": {
+      "label": "Lakeway public-records portal (NextRequest)",
+      "status": "ok",
+      "httpStatus": 200,
+      "evidence": null
+    }
+  }
+}

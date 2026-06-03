@@ -1,0 +1,42 @@
+name: Monthly Sweep (1st @ 7 AM CT)
+
+on:
+  schedule:
+    # 12:00 UTC = 7 AM CDT / 6 AM CST. 1st of each month.
+    - cron: '0 12 1 * *'
+  workflow_dispatch: {}
+
+permissions:
+  contents: write
+
+concurrency:
+  group: monthly-sweep
+  cancel-in-progress: false
+
+jobs:
+  refresh:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+          cache: pip
+      - run: pip install -r requirements.txt
+      - name: Run monthly sweep
+        env:
+          TZ: America/Chicago
+        run: python scripts/monthly_sweep.py
+      - name: Commit data/ if anything changed
+        run: |
+          git config user.name  "popsguide-bot"
+          git config user.email "popsguide-bot@users.noreply.github.com"
+          git add data/
+          if git diff --quiet --cached; then
+            echo "No data changes; skipping commit."
+          else
+            git commit -m "auto(monthly-sweep): $(date -u +'%Y-%m-%dT%H:%M:%SZ')"
+            git pull --rebase || true
+            git push
+          fi
