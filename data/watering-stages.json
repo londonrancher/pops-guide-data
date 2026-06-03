@@ -1,6 +1,6 @@
 {
-  "lastChecked": "2026-06-03T06:44:55-05:00",
-  "lastCheckedUtc": "2026-06-03T11:44:55Z",
+  "lastChecked": "2026-06-03T06:53:23-05:00",
+  "lastCheckedUtc": "2026-06-03T11:53:23Z",
   "districts": [
     {
       "key": "lmud",
@@ -8,7 +8,7 @@
       "stage": null,
       "boilNotice": false,
       "fetched": true,
-      "fetchMethod": "playwright",
+      "fetchMethod": "httpx",
       "url": "https://lakewaymud.org/",
       "phone": "512-261-6222",
       "sites": [
@@ -32,10 +32,10 @@
     {
       "key": "wcid17",
       "name": "Travis County WCID #17",
-      "stage": null,
+      "stage": 1,
       "boilNotice": false,
       "fetched": true,
-      "fetchMethod": "playwright",
+      "fetchMethod": "httpx",
       "url": "https://www.wcid17.org/",
       "phone": "512-266-1111",
       "sites": [
