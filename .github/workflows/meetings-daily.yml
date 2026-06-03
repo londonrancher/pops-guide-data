@@ -1,9 +1,9 @@
-name: Water + Boil + Burn (Daily 6:30 AM CT)
+name: Lakeway Meetings — Full Refresh (Daily 6:30 AM CT)
 
 on:
   schedule:
     # 11:30 UTC = 6:30 AM CDT (summer) / 5:30 AM CST (winter).
-    # GH Actions cron is UTC-only; the 1-hour winter drift is acceptable.
+    # Same minute as water-daily; they run in parallel.
     - cron: '30 11 * * *'
   workflow_dispatch: {}
 
@@ -11,13 +11,13 @@ permissions:
   contents: write
 
 concurrency:
-  group: water-daily
+  group: meetings-daily
   cancel-in-progress: false
 
 jobs:
   refresh:
     runs-on: ubuntu-latest
-    timeout-minutes: 10
+    timeout-minutes: 15
     steps:
       - uses: actions/checkout@v4
 
@@ -49,10 +49,10 @@ jobs:
       - name: Install Playwright OS dependencies (always — fresh VM each run)
         run: python -m playwright install-deps chromium
 
-      - name: Run water check
+      - name: Refresh Lakeway meetings JSON
         env:
           TZ: America/Chicago
-        run: python scripts/water_check.py
+        run: python scripts/meetings_daily.py
 
       - name: Commit data/ if anything changed
         run: |
@@ -62,8 +62,8 @@ jobs:
           if git diff --quiet --cached; then
             echo "No data changes; skipping commit."
           else
-            git commit -m "auto(water-daily): refresh at $(date -u +'%Y-%m-%dT%H:%M:%SZ')"
-            # Pull --rebase before push in case meetings-daily committed in parallel
+            git commit -m "auto(meetings-daily): $(date -u +'%Y-%m-%dT%H:%M:%SZ')"
+            # Pull --rebase before push in case water-daily committed in parallel
             git pull --rebase || true
             git push
           fi
