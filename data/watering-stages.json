@@ -1,13 +1,14 @@
 {
-  "lastChecked": "2026-06-03T05:54:02-05:00",
-  "lastCheckedUtc": "2026-06-03T10:54:02Z",
+  "lastChecked": "2026-06-03T06:44:55-05:00",
+  "lastCheckedUtc": "2026-06-03T11:44:55Z",
   "districts": [
     {
       "key": "lmud",
       "name": "Lakeway MUD",
       "stage": null,
       "boilNotice": false,
-      "fetched": false,
+      "fetched": true,
+      "fetchMethod": "playwright",
       "url": "https://lakewaymud.org/",
       "phone": "512-261-6222",
       "sites": [
@@ -20,6 +21,7 @@
       "stage": null,
       "boilNotice": false,
       "fetched": true,
+      "fetchMethod": "httpx",
       "url": "https://hurstcreekmud.org/",
       "phone": "512-261-6281",
       "sites": [
@@ -32,7 +34,8 @@
       "name": "Travis County WCID #17",
       "stage": null,
       "boilNotice": false,
-      "fetched": false,
+      "fetched": true,
+      "fetchMethod": "playwright",
       "url": "https://www.wcid17.org/",
       "phone": "512-266-1111",
       "sites": [
@@ -46,6 +49,7 @@
       "stage": null,
       "boilNotice": false,
       "fetched": true,
+      "fetchMethod": "httpx",
       "url": "https://crossroadsus.com/districts/travis-county-municipal-utility-district-011",
       "phone": "512-246-1400",
       "sites": [
@@ -58,6 +62,7 @@
       "stage": null,
       "boilNotice": false,
       "fetched": true,
+      "fetchMethod": "httpx",
       "url": "https://crossroadsus.com/districts/travis-county-municipal-utility-district-012",
       "phone": "512-246-1400",
       "sites": [
@@ -70,6 +75,7 @@
       "stage": null,
       "boilNotice": false,
       "fetched": true,
+      "fetchMethod": "httpx",
       "url": "https://crossroadsus.com/districts/travis-county-municipal-utility-district-013",
       "phone": "512-246-1400",
       "sites": [

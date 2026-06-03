@@ -131,6 +131,7 @@ BURN_BAN_INACTIVE = re.compile(
 
 
 def fetch(url: str) -> str | None:
+    """Plain httpx GET. Returns HTML or None on any error."""
     try:
         r = httpx.get(url, headers=HEADERS, timeout=20.0, follow_redirects=True)
         r.raise_for_status()
@@ -138,6 +139,41 @@ def fetch(url: str) -> str | None:
     except Exception as e:
         print(f"[fetch] {url} → {e}", file=sys.stderr)
         return None
+
+
+def fetch_with_fallback(url: str) -> tuple[str | None, str]:
+    """Try httpx first; on 403 or empty result, fall back to headless Chromium.
+
+    Returns (html, method) where method ∈ {"httpx", "playwright", "failed"}.
+    """
+    # Try plain httpx first — it's ~50x faster than spinning up a browser.
+    try:
+        r = httpx.get(url, headers=HEADERS, timeout=20.0, follow_redirects=True)
+        r.raise_for_status()
+        return r.text, "httpx"
+    except httpx.HTTPStatusError as e:
+        status = e.response.status_code
+        if status not in (403, 429, 503):
+            print(f"[httpx] {url} → HTTP {status}", file=sys.stderr)
+            return None, "failed"
+        # Anti-bot status code → try Playwright fallback.
+    except Exception as e:
+        print(f"[httpx] {url} → {e}", file=sys.stderr)
+        # Keep going to Playwright; many CDN failures masquerade as TLS resets.
+
+    # Playwright fallback. Lazy import so other scripts that don't need it
+    # don't pay the browser launch cost.
+    try:
+        from lib.browser import fetch_html
+    except ImportError as e:
+        print(f"[playwright] import failed: {e}", file=sys.stderr)
+        return None, "failed"
+
+    html = fetch_html(url)
+    if html:
+        return html, "playwright"
+    print(f"[playwright] {url} returned no HTML", file=sys.stderr)
+    return None, "failed"
 
 
 def check_district(d: dict) -> dict:
@@ -153,9 +189,11 @@ def check_district(d: dict) -> dict:
         "boilNotice": False,
         "boilContext": None,          # short excerpt around the match, for debugging
         "fetched": True,
+        "fetchMethod": None,          # "httpx" or "playwright"
     }
 
-    html = fetch(d["stagePath"])
+    html, method = fetch_with_fallback(d["stagePath"])
+    state["fetchMethod"] = method
     if html is None:
         state["fetched"] = False
         return state
@@ -251,6 +289,7 @@ def main() -> int:
                 "stage": d["stage"],
                 "boilNotice": d["boilNotice"],
                 "fetched": d["fetched"],
+                "fetchMethod": d["fetchMethod"],
                 "url": d["url"],
                 "phone": d["phone"],
                 "sites": d["sites"],
