@@ -1,0 +1,14 @@
+{
+  "lastChecked": "2026-06-03T11:51:54-05:00",
+  "lastCheckedUtc": "2026-06-03T16:51:54Z",
+  "sources": {
+    "lcra": "https://lcraparks.com/",
+    "traviscounty": "https://parks.traviscountytx.gov/"
+  },
+  "sourcesReachable": {
+    "lcra": true,
+    "traviscounty": true
+  },
+  "lcraClosures": [],
+  "traviscountyClosures": []
+}
