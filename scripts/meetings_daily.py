@@ -98,34 +98,70 @@ def parse_civicweb_date(raw: str) -> tuple[str, str] | None:
     return None
 
 
-def discover_meeting_ids(page) -> list[dict]:
+def discover_meeting_ids(page) -> tuple[list[dict], bool]:
     """From the schedule page, find every upcoming meeting and return basic info.
 
+    Returns (meetings, page_loaded_ok).
+      - meetings: list of {id, title, href, cardText}
+      - page_loaded_ok: True if the schedule page rendered enough content
+        to be considered a successful fetch (even if 0 meetings).
+
     The schedule page renders each meeting as a card with a title and date,
-    linking to MeetingInformation.aspx?Org=Cal&Id=<n>. We extract the link
-    text, dates, and ids; later we fetch each individual page for full detail.
-
-    Resilient against slow renders: tries up to 4 times with longer waits
-    each time, looking for at least one anchor that carries an Id= param.
-    Without this, a quick-evaluate-before-hydration race can return 0
-    meetings — we observed exactly this on a clean GH Actions runner.
+    linking to MeetingInformation.aspx?Org=Cal&Id=<n>. Distinguish between
+    three states so the caller can react correctly:
+      A) Page loaded + ≥1 meeting → write fresh data
+      B) Page loaded + 0 meetings → legitimately quiet; write empty list
+      C) Page didn't load (anti-bot, timeout) → preserve existing data
     """
-    page.goto(SCHEDULE_URL, wait_until="domcontentloaded", timeout=30000)
+    page_loaded_ok = False
+    try:
+        page.goto(SCHEDULE_URL, wait_until="domcontentloaded", timeout=30000)
+    except Exception as e:
+        print(f"[discover_meeting_ids] goto failed: {e}", file=sys.stderr)
+        return [], False
 
-    # Stage 1: wait for the network to settle. iCompass loads its meeting
-    # list asynchronously; the dom content event fires well before then.
+    # Wait for the network to settle. iCompass loads its meeting list
+    # asynchronously; the dom content event fires well before then.
     try:
         page.wait_for_load_state("networkidle", timeout=15000)
     except Exception:
         pass  # Some sites never reach networkidle; fall through to polling.
 
-    # Stage 2: poll for at least one Id-bearing anchor. Each meeting card
-    # exposes one. If we time out without finding any, error visibly so
-    # the workflow surfaces the issue instead of committing empty data.
+    # Try to wait explicitly for at least one Id-bearing meeting anchor.
+    # If this times out, the page may legitimately have no meetings — we'll
+    # verify below by checking the body markers.
+    try:
+        page.wait_for_function(
+            """() => {
+              const a = document.querySelectorAll('a[href*="MeetingInformation.aspx"]');
+              return Array.from(a).some(el => /Id=\\d+/.test(el.href));
+            }""",
+            timeout=15000,
+        )
+    except Exception:
+        pass  # No meeting anchors after 15s; could be empty schedule.
+
+    # Page-load sanity check — confirms the schedule page rendered.
+    try:
+        page_loaded_ok = page.evaluate(
+            """() => {
+              const t = document.body.innerText || '';
+              return /Schedule of Meetings/i.test(t)
+                  || /Upcoming Meetings/i.test(t)
+                  || /Today.?s Meetings/i.test(t)
+                  || /Recent Meetings/i.test(t)
+                  || /Calendar/i.test(t);
+            }"""
+        )
+    except Exception as e:
+        print(f"[discover_meeting_ids] body check failed: {e}", file=sys.stderr)
+        page_loaded_ok = False
+
+    # Now harvest meetings. One last small wait covers any final hydration.
+    page.wait_for_timeout(1000)
     raw = []
     last_count = -1
-    for attempt in range(8):
-        page.wait_for_timeout(1500)
+    for _ in range(5):
         raw = page.evaluate(
             """() => {
               const items = [];
@@ -152,11 +188,11 @@ def discover_meeting_ids(page) -> list[dict]:
             }"""
         )
         if raw and len(raw) == last_count:
-            # List stabilized — same count two polls in a row.
-            break
+            break  # stable
         last_count = len(raw)
+        page.wait_for_timeout(1500)
 
-    return raw
+    return raw, page_loaded_ok
 
 
 def parse_card_date(card_text: str) -> tuple[str, str] | None:
@@ -252,17 +288,16 @@ def main() -> int:
     meetings: list[dict] = []
     error = None
     discovered_count = 0
+    page_loaded_ok = False
 
     try:
         with headless_page() as page:
-            discovered = discover_meeting_ids(page)
+            discovered, page_loaded_ok = discover_meeting_ids(page)
             discovered_count = len(discovered)
-            print(f"[{stamp_log_ct()}] meetings_daily: discovered {discovered_count} meeting entries on schedule page")
-            if discovered_count == 0:
-                # 0 discovered is almost always a render race or anti-bot
-                # block, not a real "city has no meetings" state. Refuse
-                # to overwrite the existing JSON with emptiness.
-                error = "0 meetings discovered on CivicWeb — refusing to overwrite existing data"
+            print(
+                f"[{stamp_log_ct()}] meetings_daily: discovered {discovered_count} meeting entries "
+                f"on schedule page (page_loaded_ok={page_loaded_ok})"
+            )
 
             for item in discovered:
                 mid = item.get("id")
@@ -337,12 +372,14 @@ def main() -> int:
     if error:
         payload["error"] = error
 
-    # Refuse to write a totally-empty meetings list — that's almost always
-    # a fetch-race or anti-bot block. Preserve the existing JSON so the
-    # sites keep showing the last known meetings instead of going blank.
-    if discovered_count == 0:
+    # Three-state outcome:
+    #   A) page_loaded_ok AND ≥1 meeting → write fresh data (normal path)
+    #   B) page_loaded_ok AND 0 meetings → legitimately empty; write empty list, exit 0
+    #   C) NOT page_loaded_ok → fetch failed; preserve existing JSON, exit 2
+    if not page_loaded_ok:
         print(
-            f"[{stamp_log_ct()}] meetings_daily: ABORT — 0 meetings discovered, leaving existing JSON intact",
+            f"[{stamp_log_ct()}] meetings_daily: ABORT — schedule page did not load "
+            f"(anti-bot or network error). Existing JSON preserved.",
             file=sys.stderr,
         )
         return 2
@@ -350,9 +387,13 @@ def main() -> int:
     changed = write_json_atomic(OUTPUT, payload)
     note = "changed" if changed else "no change"
     types = ",".join(sorted({m["type"] for m in meetings})) or "(none)"
+    state = (
+        "fresh data" if len(meetings) > 0
+        else "page loaded successfully but no meetings in window — wrote empty list"
+    )
     print(
         f"[{stamp_log_ct()}] meetings_daily: {len(meetings)} meeting(s) in window | "
-        f"types: {types} | {note}"
+        f"types: {types} | {note} | {state}"
         + (f" | error: {error}" if error else "")
     )
     return 0 if not error else 2
