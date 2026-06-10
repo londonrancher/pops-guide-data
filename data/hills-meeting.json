@@ -1,12 +1,12 @@
 {
-  "lastUpdated": "2026-06-03",
-  "lastUpdatedUtc": "2026-06-03T17:04:50Z",
+  "lastUpdated": "2026-06-10",
+  "lastUpdatedUtc": "2026-06-10T14:37:00Z",
   "source": "https://villageofthehills.org/AgendaCenter",
   "agendaCenterUrl": "https://villageofthehills.org/AgendaCenter",
   "note": "Date computed deterministically (2nd Tuesday rule). Agenda PDF is typically posted 3 business days before each meeting at the Agenda Center; until then agendaUrl stays null.",
   "meeting": {
     "title": "Regular City Council Meeting",
-    "date": "2026-06-09",
+    "date": "2026-07-14",
     "weekday": "Tuesday",
     "time": "9:00 AM",
     "location": "102 Trophy Drive, The Hills, TX 78738",
