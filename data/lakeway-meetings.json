@@ -1,25 +1,11 @@
 {
-  "lastUpdated": "2026-06-11",
-  "lastUpdatedAt": "2026-06-11T10:03:54-05:00",
+  "lastUpdated": "2026-06-12",
+  "lastUpdatedAt": "2026-06-12T09:19:48-05:00",
   "source": "https://lakeway-tx.civicweb.net/Portal/MeetingSchedule.aspx",
   "publicCommentPortal": "https://lakeway-tx.civicweb.net/Portal/CitizenEngagement.aspx",
   "watchLiveOrArchive": "https://www.lakeway-tx.gov/1062/Videos--Meetings-Events",
   "lookAheadDays": 90,
   "meetings": [
-    {
-      "id": 2306,
-      "type": "boa",
-      "title": "BOA Meeting",
-      "date": "2026-06-11",
-      "weekday": "Thursday",
-      "time": "9:00 AM",
-      "location": "Lakeway City Hall, 1102 Lohmans Crossing Rd",
-      "url": "https://lakeway-tx.civicweb.net/Portal/MeetingInformation.aspx?Org=Cal&Id=2306",
-      "livestreamed": true,
-      "status": "scheduled",
-      "agendaUrl": "https://lakeway-tx.civicweb.net/document/102568?printPdf=true",
-      "packetUrl": "https://lakeway-tx.civicweb.net/document/102567"
-    },
     {
       "id": 2302,
       "type": "council",
