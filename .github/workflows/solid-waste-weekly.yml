@@ -41,8 +41,13 @@ jobs:
           path: ~/.cache/ms-playwright
           key: pw-${{ runner.os }}-${{ steps.pw-version.outputs.version }}
 
-      - name: Install Playwright Chromium binary (cache miss only)
-        if: steps.pw-cache.outputs.cache-hit != 'true'
+      - name: Install Playwright Chromium binary (always — idempotent when cached)
+        # NOT gated on cache hit. When Playwright Python bumps its required
+        # Chromium build (chrome-headless-shell-XXXX) without changing its
+        # own version string, the cache key still matches but the binary it
+        # holds is the wrong build — launch() fails with "Executable doesn't
+        # exist." `playwright install` is a no-op when the right binary is
+        # already at the expected path, so always running it is safe.
         run: python -m playwright install chromium
 
       - name: Install Playwright OS dependencies (always — fresh VM each run)
