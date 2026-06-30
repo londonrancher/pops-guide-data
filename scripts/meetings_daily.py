@@ -98,6 +98,56 @@ def parse_civicweb_date(raw: str) -> tuple[str, str] | None:
     return None
 
 
+def _dump_page_diag(page, label: str) -> None:
+    """Print page state to stderr for CI debugging.
+
+    Called when the schedule page sanity check fails, so we can see in the
+    GitHub Actions log what the headless browser actually rendered (vs.
+    what a real browser sees). Also saves a screenshot to repo root so it
+    appears in the post-job workspace if the workflow uploads it.
+    """
+    try:
+        url = page.url
+    except Exception:
+        url = "<unknown>"
+    try:
+        title = page.title()
+    except Exception:
+        title = "<unknown>"
+    try:
+        body = page.evaluate("() => (document.body && document.body.innerText) || ''") or ""
+    except Exception as e:
+        body = f"<eval error: {e}>"
+    try:
+        anchor_count = page.evaluate(
+            "() => document.querySelectorAll('a[href*=\"MeetingInformation.aspx\"]').length"
+        )
+    except Exception:
+        anchor_count = -1
+    try:
+        html_len = page.evaluate("() => (document.documentElement && document.documentElement.outerHTML || '').length")
+    except Exception:
+        html_len = -1
+
+    print(f"[diag:{label}] url={url}", file=sys.stderr)
+    print(f"[diag:{label}] title={title!r}", file=sys.stderr)
+    print(f"[diag:{label}] html_length={html_len}", file=sys.stderr)
+    print(f"[diag:{label}] body_length={len(body)}", file=sys.stderr)
+    print(f"[diag:{label}] meeting_anchor_count={anchor_count}", file=sys.stderr)
+    # First 1500 chars of body so we can see what's actually rendered
+    snippet = body[:1500].replace("\n", " ⏎ ")
+    print(f"[diag:{label}] body_snippet={snippet}", file=sys.stderr)
+
+    # Save a screenshot to the repo root so we can attach it as an artifact.
+    # The workflow can pick this up via actions/upload-artifact if desired.
+    try:
+        screenshot_path = Path(__file__).resolve().parent.parent / f"diag-{label}.png"
+        page.screenshot(path=str(screenshot_path), full_page=True)
+        print(f"[diag:{label}] screenshot_saved={screenshot_path}", file=sys.stderr)
+    except Exception as e:
+        print(f"[diag:{label}] screenshot_failed={e}", file=sys.stderr)
+
+
 def discover_meeting_ids(page) -> tuple[list[dict], bool]:
     """From the schedule page, find every upcoming meeting and return basic info.
 
@@ -115,9 +165,18 @@ def discover_meeting_ids(page) -> tuple[list[dict], bool]:
     """
     page_loaded_ok = False
     try:
-        page.goto(SCHEDULE_URL, wait_until="domcontentloaded", timeout=30000)
+        response = page.goto(SCHEDULE_URL, wait_until="domcontentloaded", timeout=30000)
+        if response is not None:
+            print(
+                f"[discover_meeting_ids] goto OK: status={response.status} "
+                f"url={response.url}",
+                file=sys.stderr,
+            )
+        else:
+            print("[discover_meeting_ids] goto OK but no response object", file=sys.stderr)
     except Exception as e:
         print(f"[discover_meeting_ids] goto failed: {e}", file=sys.stderr)
+        _dump_page_diag(page, label="goto-failed")
         return [], False
 
     # Wait for the network to settle. iCompass loads its meeting list
@@ -156,6 +215,11 @@ def discover_meeting_ids(page) -> tuple[list[dict], bool]:
     except Exception as e:
         print(f"[discover_meeting_ids] body check failed: {e}", file=sys.stderr)
         page_loaded_ok = False
+
+    # If the sanity check failed, dump the page state so we can see what
+    # the runner is actually getting (CI logs preserve this).
+    if not page_loaded_ok:
+        _dump_page_diag(page, label="body-check-failed")
 
     # Now harvest meetings. One last small wait covers any final hydration.
     page.wait_for_timeout(1000)
