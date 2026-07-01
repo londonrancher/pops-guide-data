@@ -1,6 +1,6 @@
 {
-  "lastChecked": "2026-06-03T11:53:15-05:00",
-  "lastCheckedUtc": "2026-06-03T16:53:15Z",
+  "lastChecked": "2026-07-01T09:34:59-05:00",
+  "lastCheckedUtc": "2026-07-01T14:34:59Z",
   "checks": {
     "walgreens24": {
       "label": "Walgreens 24-Hour Pharmacy (6200 William Cannon, Austin)",
@@ -21,7 +21,7 @@
       "phone": "+15122842877",
       "status": "ok",
       "httpStatus": 200,
-      "evidence": "24/7 Emergency Vet & Specialty Hospital | Bee Cave, TX About U"
+      "evidence": "Join Violet Crown Specialty What Is a Veterinary Specialist 24/7 Emergency Care Critical Care Oncology Soft Tissue Surgery"
     },
     "gfiberAustin": {
       "label": "GFiber Austin buildout",
@@ -32,14 +32,14 @@
     },
     "lcraOSSF": {
       "label": "LCRA OSSF (septic) program",
-      "status": "ok",
-      "httpStatus": 200,
-      "evidence": null
+      "status": "stale",
+      "httpStatus": 403,
+      "evidence": "HTTP 403"
     },
     "ltfrPermits": {
       "label": "LTFR online permits portal",
-      "status": "unreachable",
-      "httpStatus": null,
+      "status": "ok",
+      "httpStatus": 200,
       "evidence": null
     },
     "voyentAlert": {
