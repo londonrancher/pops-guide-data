@@ -1,6 +1,6 @@
 {
-  "lastUpdated": "2026-07-07",
-  "lastUpdatedAt": "2026-07-07T08:33:51-05:00",
+  "lastUpdated": "2026-07-08",
+  "lastUpdatedAt": "2026-07-08T08:03:21-05:00",
   "source": "https://lakeway-tx.civicweb.net/Portal/MeetingSchedule.aspx",
   "publicCommentPortal": "https://lakeway-tx.civicweb.net/Portal/CitizenEngagement.aspx",
   "watchLiveOrArchive": "https://www.lakeway-tx.gov/1062/Videos--Meetings-Events",
@@ -19,6 +19,20 @@
       "status": "scheduled",
       "agendaUrl": "https://lakeway-tx.civicweb.net/document/102964?printPdf=true",
       "packetUrl": "https://lakeway-tx.civicweb.net/document/102963"
+    },
+    {
+      "id": 2307,
+      "type": "council",
+      "title": "Special City Council Meeting",
+      "date": "2026-07-13",
+      "weekday": "Monday",
+      "time": "6:30 PM",
+      "location": "Lakeway City Hall, 1102 Lohmans Crossing Rd",
+      "url": "https://lakeway-tx.civicweb.net/Portal/MeetingInformation.aspx?Org=Cal&Id=2307",
+      "livestreamed": true,
+      "status": "scheduled",
+      "agendaUrl": "https://lakeway-tx.civicweb.net/document/103010?printPdf=true",
+      "packetUrl": "https://lakeway-tx.civicweb.net/document/103009"
     },
     {
       "id": 2308,
