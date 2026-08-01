@@ -1,9 +1,38 @@
 {
-  "lastUpdated": "2026-07-31",
-  "lastUpdatedAt": "2026-07-31T08:14:48-05:00",
+  "lastUpdated": "2026-08-01",
+  "lastUpdatedAt": "2026-08-01T07:32:44-05:00",
   "source": "https://lakeway-tx.civicweb.net/Portal/MeetingSchedule.aspx",
   "publicCommentPortal": "https://lakeway-tx.civicweb.net/Portal/CitizenEngagement.aspx",
   "watchLiveOrArchive": "https://www.lakeway-tx.gov/1062/Videos--Meetings-Events",
   "lookAheadDays": 90,
-  "meetings": []
+  "meetings": [
+    {
+      "id": 2310,
+      "type": "council",
+      "title": "Special City Council Meeting",
+      "date": "2026-08-03",
+      "weekday": "Monday",
+      "time": "6:30 PM",
+      "location": "Lakeway City Hall, 1102 Lohmans Crossing Rd",
+      "url": "https://lakeway-tx.civicweb.net/Portal/MeetingInformation.aspx?Org=Cal&Id=2310",
+      "livestreamed": true,
+      "status": "scheduled",
+      "agendaUrl": "https://lakeway-tx.civicweb.net/document/103366?printPdf=true",
+      "packetUrl": "https://lakeway-tx.civicweb.net/document/103365"
+    },
+    {
+      "id": 2283,
+      "type": "zapco",
+      "title": "ZAPCO Regular Meeting",
+      "date": "2026-08-05",
+      "weekday": "Wednesday",
+      "time": "9:00 AM",
+      "location": "Lakeway City Hall, 1102 Lohmans Crossing Rd",
+      "url": "https://lakeway-tx.civicweb.net/Portal/MeetingInformation.aspx?Org=Cal&Id=2283",
+      "livestreamed": true,
+      "status": "scheduled",
+      "agendaUrl": "https://lakeway-tx.civicweb.net/document/103400?printPdf=true",
+      "packetUrl": "https://lakeway-tx.civicweb.net/document/103399"
+    }
+  ]
 }
