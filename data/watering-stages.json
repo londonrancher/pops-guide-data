@@ -1,6 +1,6 @@
 {
-  "lastChecked": "2026-06-04T09:14:05-05:00",
-  "lastCheckedUtc": "2026-06-04T14:14:05Z",
+  "lastChecked": "2026-08-26T06:55:18-05:00",
+  "lastCheckedUtc": "2026-08-26T11:55:18Z",
   "districts": [
     {
       "key": "lmud",
@@ -46,7 +46,7 @@
     {
       "key": "tcmud11",
       "name": "TCMUD #11",
-      "stage": 2,
+      "stage": 3,
       "boilNotice": false,
       "fetched": true,
       "fetchMethod": "httpx",
@@ -59,7 +59,7 @@
     {
       "key": "tcmud12",
       "name": "TCMUD #12",
-      "stage": 2,
+      "stage": 3,
       "boilNotice": false,
       "fetched": true,
       "fetchMethod": "httpx",
@@ -72,7 +72,7 @@
     {
       "key": "tcmud13",
       "name": "TCMUD #13",
-      "stage": 2,
+      "stage": 3,
       "boilNotice": false,
       "fetched": true,
       "fetchMethod": "httpx",
