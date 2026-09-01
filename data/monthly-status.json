@@ -1,6 +1,6 @@
 {
-  "lastChecked": "2026-08-01T08:18:43-05:00",
-  "lastCheckedUtc": "2026-08-01T13:18:43Z",
+  "lastChecked": "2026-09-01T11:07:45-05:00",
+  "lastCheckedUtc": "2026-09-01T16:07:45Z",
   "checks": {
     "walgreens24": {
       "label": "Walgreens 24-Hour Pharmacy (6200 William Cannon, Austin)",
@@ -56,9 +56,9 @@
     },
     "lthsBandFlagFundraiser": {
       "label": "LTHS Band American Flag fundraiser",
-      "status": "stale",
-      "httpStatus": 503,
-      "evidence": "HTTP 503"
+      "status": "ok",
+      "httpStatus": 200,
+      "evidence": null
     },
     "nextRequest": {
       "label": "Lakeway public-records portal (NextRequest)",
