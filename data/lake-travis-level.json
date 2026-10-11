@@ -1,12 +1,12 @@
 {
-  "lastUpdated": "2026-10-10T12:33:40-05:00",
-  "lastUpdatedUtc": "2026-10-10T17:33:40Z",
+  "lastUpdated": "2026-10-11T12:51:28-05:00",
+  "lastUpdatedUtc": "2026-10-11T17:51:28Z",
   "source": "waterdatafortexas.org",
   "sourceUrl": "https://www.waterdatafortexas.org/reservoirs/individual/travis",
-  "elevationFt": 677.99,
-  "elevationAt": "2026-10-10",
-  "percentFull": 94.9,
-  "percentAsOf": "2026-10-10",
+  "elevationFt": 677.95,
+  "elevationAt": "2026-10-11",
+  "percentFull": 94.8,
+  "percentAsOf": "2026-10-11",
   "conservationPoolFt": 681.0,
-  "heightAboveConservationPoolFt": -3.01
+  "heightAboveConservationPoolFt": -3.05
 }
