@@ -60,6 +60,9 @@ jobs:
         run: python scripts/water_check.py
 
       - name: Commit data/ if anything changed
+        # always(): commit whatever was checked even on a partial-fetch day
+        # (the script exits nonzero then, which still flags the run as failed).
+        if: always()
         run: |
           git config user.name  "popsguide-bot"
           git config user.email "popsguide-bot@users.noreply.github.com"

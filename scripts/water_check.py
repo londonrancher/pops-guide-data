@@ -7,6 +7,7 @@ Outputs:
   data/lakeway-boil.json           active notices scoped to Lakeway addresses
   data/hills-boil.json             active notices scoped to The Hills addresses
   data/costabella-boil.json        active notices scoped to Costa Bella addresses
+  data/cambridge-boil.json         Austin Water notices (City of Austin newsroom RSS) for Cambridge Tower
 
 District → site mapping:
   Lakeway MUD          → Lakeway
@@ -120,14 +121,24 @@ STAGE_PATTERNS = re.compile(
     r"stage\s*([1-4])(?:\s*water\s*restriction)?",
     re.IGNORECASE,
 )
+# Status language is read only from the page's status banner (the first
+# .sppb-alert block, or the text right after the "You are here" breadcrumb),
+# never from FAQ copy further down the page ("A burn ban is in effect or lifted").
 BURN_BAN_ACTIVE = re.compile(
-    r"(burn\s+ban\s+is\s+in\s+effect|burn\s+ban\s+is\s+currently\s+in\s+effect|active\s+burn\s+ban)",
+    r"(burn\s+ban\s+(is\s+)?(currently\s+)?in\s+effect|outdoor\s+burning\s+is\s+(currently\s+)?prohibited|active\s+burn\s+ban)",
     re.IGNORECASE,
 )
 BURN_BAN_INACTIVE = re.compile(
-    r"(no\s+burn\s+ban|burn\s+ban\s+is\s+not\s+in\s+effect|currently\s+no\s+burn\s+ban)",
+    r"(no\s+(current\s+|active\s+)?burn\s+ban|burn\s+ban\s+(has\s+been\s+|was\s+|is\s+)?(lifted|rescinded|expired)|burn\s+ban\s+is\s+not\s+in\s+effect|outdoor\s+burning\s+is\s+(currently\s+)?(allowed|permitted))",
     re.IGNORECASE,
 )
+BURN_BAN_ASOF = re.compile(r"as\s+of\s+(\d{1,2}/\d{1,2}/\d{2,4})", re.IGNORECASE)
+
+# City of Austin newsroom RSS: Austin Water announces boil-water notices there.
+AUSTIN_NEWS_RSS = "https://www.austintexas.gov/site/news/rss.xml"
+AUSTIN_BOIL = re.compile(r"boil[\s-]?water", re.IGNORECASE)
+AUSTIN_BOIL_LIFTED = re.compile(r"(lift|lifted|lifts|rescind|rescinded|no\s+longer|ends|ended|has\s+ended|over)", re.IGNORECASE)
+AUSTIN_LOOKBACK_DAYS = 21
 
 
 def fetch(url: str) -> str | None:
@@ -226,11 +237,13 @@ def check_district(d: dict) -> dict:
 
 
 def check_burn_ban() -> dict:
-    """Return Travis County burn-ban state."""
+    """Return Travis County burn-ban state, read from the page's status banner only."""
     state = {
         "url": BURN_BAN_URL,
         "active": None,             # True / False / None (unknown)
         "fetched": True,
+        "asOf": None,               # date the county states, e.g. "8/11/26"
+        "statusText": None,         # the banner text the decision was based on
         "evidence": None,
     }
     html = fetch(BURN_BAN_URL)
@@ -238,16 +251,97 @@ def check_burn_ban() -> dict:
         state["fetched"] = False
         return state
 
-    text = BeautifulSoup(html, "html.parser").get_text(" ", strip=True)
+    soup = BeautifulSoup(html, "html.parser")
+    banner = None
+    alert = soup.select_one(".sppb-alert")
+    if alert is not None:
+        banner = alert.get_text(" ", strip=True)
+    if not banner:
+        text = soup.get_text(" ", strip=True)
+        i = text.find("You are here")
+        if i >= 0:
+            banner = text[i:i + 400]
+    if not banner:
+        state["evidence"] = "status banner not found; status unknown"
+        return state
 
-    # Inactive language tends to be more reliable than active.
-    if BURN_BAN_INACTIVE.search(text):
-        state["active"] = False
-        state["evidence"] = "page contains 'no burn ban' / 'not in effect'"
-    elif BURN_BAN_ACTIVE.search(text):
+    banner = re.sub(r"\s+", " ", banner).strip()[:400]
+    state["statusText"] = banner
+    inactive = bool(BURN_BAN_INACTIVE.search(banner))
+    # "No Burn Ban in Effect" contains the active phrase too; an explicit "no burn ban" wins.
+    active = bool(BURN_BAN_ACTIVE.search(banner)) and not re.search(r"\bno\s+(current\s+|active\s+)?burn\s+ban", banner, re.IGNORECASE)
+    if active and not inactive:
         state["active"] = True
-        state["evidence"] = "page contains 'burn ban is in effect'"
+        state["evidence"] = "status banner says a burn ban is in effect"
+    elif inactive and not active:
+        state["active"] = False
+        state["evidence"] = "status banner says no burn ban / lifted"
+    else:
+        state["evidence"] = "status banner ambiguous; status unknown"
+    m = BURN_BAN_ASOF.search(banner)
+    if m:
+        state["asOf"] = m.group(1)
     return state
+
+
+def check_austin_water_boil() -> dict:
+    """Look for an Austin Water boil-water notice in the City of Austin newsroom RSS.
+
+    Conservative: a notice is active only if the newest boil-water item in the
+    look-back window does not announce a lift. Returns a site payload for
+    Cambridge Tower (downtown Austin)."""
+    from email.utils import parsedate_to_datetime
+    from datetime import datetime, timedelta, timezone
+
+    result = {"fetched": True, "notices": [], "evidence": None}
+    xml = fetch(AUSTIN_NEWS_RSS)
+    if xml is None:
+        result["fetched"] = False
+        return result
+    import warnings
+    from bs4 import XMLParsedAsHTMLWarning
+    warnings.filterwarnings("ignore", category=XMLParsedAsHTMLWarning)
+    soup = BeautifulSoup(xml, "html.parser")
+    cutoff = datetime.now(timezone.utc) - timedelta(days=AUSTIN_LOOKBACK_DAYS)
+    hits = []
+    for item in soup.find_all("item"):
+        title = (item.title.get_text(" ", strip=True) if item.title else "")
+        desc = BeautifulSoup(item.description.get_text() if item.description else "", "html.parser").get_text(" ", strip=True)
+        link = item.find("link")
+        link = link.get_text(strip=True) if link else ""
+        if not link and item.guid:
+            link = item.guid.get_text(strip=True)
+        try:
+            pd = item.find("pubdate")  # html.parser lower-cases tag names
+            when = parsedate_to_datetime(pd.get_text(strip=True)) if pd else None
+        except Exception:
+            when = None
+        if when is not None and when.tzinfo is None:
+            when = when.replace(tzinfo=timezone.utc)
+        if when is None or when < cutoff:
+            continue  # undated or older than the look-back window
+        blob = f"{title} {desc}"
+        if AUSTIN_BOIL.search(blob):
+            hits.append({"title": title, "desc": desc[:300], "link": link, "when": when})
+    if not hits:
+        result["evidence"] = f"no boil-water items in the last {AUSTIN_LOOKBACK_DAYS} days"
+        return result
+    hits.sort(key=lambda h: h["when"] or cutoff, reverse=True)
+    newest = hits[0]
+    if AUSTIN_BOIL_LIFTED.search(newest["title"]):
+        result["evidence"] = f"newest boil-water item announces a lift: {newest['title']}"
+        return result
+    result["evidence"] = f"newest boil-water item: {newest['title']}"
+    result["notices"].append({
+        "district": "Austin Water",
+        "districtPhone": "3-1-1",
+        "districtUrl": "https://www.austintexas.gov/department/water",
+        "source": newest["link"] or AUSTIN_NEWS_RSS,
+        "detectedAt": now_iso_ct(),
+        "description": newest["title"],
+        "rawContext": newest["desc"],
+    })
+    return result
 
 
 def build_site_boil_payload(site: str, district_states: Iterable[dict]) -> dict:
@@ -267,10 +361,12 @@ def build_site_boil_payload(site: str, district_states: Iterable[dict]) -> dict:
             "rawContext": d["boilContext"],
         })
 
+    unreachable = [d["name"] for d in district_states if site in d["sites"] and not d["fetched"]]
     return {
         "site": site,
         "lastChecked": now_iso_ct(),
         "lastCheckedUtc": utc_iso(),
+        "districtsUnreachable": unreachable,
         "notices": notices,
     }
 
@@ -311,13 +407,28 @@ def main() -> int:
         "lastCheckedUtc": utc_iso(),
         **burn,
     }
-    burn_changed = write_json_atomic(DATA_DIR / "burn-ban.json", burn_payload)
+    # ignore_keys=[]: lastChecked is rewritten every run so the sites can tell the data is fresh.
+    burn_changed = write_json_atomic(DATA_DIR / "burn-ban.json", burn_payload, ignore_keys=[])
 
     # 5. Write per-site boil JSONs
     boil_changed = {}
     for site in ("lakeway", "hills", "costabella"):
         payload = build_site_boil_payload(site, district_states)
-        boil_changed[site] = write_json_atomic(DATA_DIR / f"{site}-boil.json", payload)
+        boil_changed[site] = write_json_atomic(DATA_DIR / f"{site}-boil.json", payload, ignore_keys=[])
+
+    # 5b. Cambridge Tower (downtown Austin): Austin Water notices from the city newsroom
+    aw = check_austin_water_boil()
+    cam_payload = {
+        "site": "cambridge",
+        "lastChecked": now_iso_ct(),
+        "lastCheckedUtc": utc_iso(),
+        "source": AUSTIN_NEWS_RSS,
+        "fetched": aw["fetched"],
+        "evidence": aw["evidence"],
+        "districtsUnreachable": [] if aw["fetched"] else ["Austin Water (city newsroom)"],
+        "notices": aw["notices"],
+    }
+    boil_changed["cambridge"] = write_json_atomic(DATA_DIR / "cambridge-boil.json", cam_payload, ignore_keys=[])
 
     # 6. Log summary
     n_unreachable = sum(1 for d in district_states if not d["fetched"])
@@ -328,7 +439,7 @@ def main() -> int:
     print(
         f"[{stamp_log_ct()}] water_check: "
         f"stages: {stages_summary} | boil: {n_with_boil} district(s) | "
-        f"burn_ban: {burn['active']} | unreachable: {n_unreachable} | "
+        f"burn_ban: {burn['active']} (as of {burn['asOf']}) | austin_water_boil: {len(aw['notices'])} | unreachable: {n_unreachable} | "
         f"changes: stages={stages_changed}, burn={burn_changed}, "
         f"boil={ {s: ('y' if c else 'n') for s, c in boil_changed.items()} }"
     )
