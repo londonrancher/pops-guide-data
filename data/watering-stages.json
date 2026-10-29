@@ -1,15 +1,18 @@
 {
-  "lastChecked": "2026-08-26T06:55:18-05:00",
-  "lastCheckedUtc": "2026-08-26T11:55:18Z",
+  "lastChecked": "2026-10-29T08:26:04-05:00",
+  "lastCheckedUtc": "2026-10-29T13:26:04Z",
   "districts": [
     {
       "key": "lmud",
       "name": "Lakeway MUD",
-      "stage": null,
+      "stage": 1,
       "boilNotice": false,
       "fetched": true,
       "fetchMethod": "httpx",
+      "fingerprint": "4b4659255e1dbfcf",
+      "changedAt": null,
       "url": "https://lakewaymud.org/",
+      "restrictionsUrl": "https://lakewaymud.org/customers/irrigation-schedule/",
       "phone": "512-261-6222",
       "sites": [
         "lakeway"
@@ -22,7 +25,10 @@
       "boilNotice": false,
       "fetched": true,
       "fetchMethod": "httpx",
+      "fingerprint": "5ff98d2aee395ef3",
+      "changedAt": null,
       "url": "https://hurstcreekmud.org/",
+      "restrictionsUrl": "https://hurstcreekmud.org/",
       "phone": "512-261-6281",
       "sites": [
         "lakeway",
@@ -36,7 +42,10 @@
       "boilNotice": false,
       "fetched": true,
       "fetchMethod": "httpx",
+      "fingerprint": "040b575f5ff952da",
+      "changedAt": null,
       "url": "https://www.wcid17.org/",
+      "restrictionsUrl": "https://www.wcid17.org/water-restrictions-and-conservation/",
       "phone": "512-266-1111",
       "sites": [
         "lakeway",
@@ -50,7 +59,10 @@
       "boilNotice": false,
       "fetched": true,
       "fetchMethod": "httpx",
+      "fingerprint": "bb206e476600c31b",
+      "changedAt": null,
       "url": "https://crossroadsus.com/districts/travis-county-municipal-utility-district-011",
+      "restrictionsUrl": "https://crossroadsus.com/districts/travis-county-municipal-utility-district-011",
       "phone": "512-246-1400",
       "sites": [
         "lakeway"
@@ -63,7 +75,10 @@
       "boilNotice": false,
       "fetched": true,
       "fetchMethod": "httpx",
+      "fingerprint": "eb1cf406f26d8a31",
+      "changedAt": null,
       "url": "https://crossroadsus.com/districts/travis-county-municipal-utility-district-012",
+      "restrictionsUrl": "https://crossroadsus.com/districts/travis-county-municipal-utility-district-012",
       "phone": "512-246-1400",
       "sites": [
         "lakeway"
@@ -76,7 +91,10 @@
       "boilNotice": false,
       "fetched": true,
       "fetchMethod": "httpx",
+      "fingerprint": "f7fa6ed703c672dc",
+      "changedAt": null,
       "url": "https://crossroadsus.com/districts/travis-county-municipal-utility-district-013",
+      "restrictionsUrl": "https://crossroadsus.com/districts/travis-county-municipal-utility-district-013",
       "phone": "512-246-1400",
       "sites": [
         "lakeway"
