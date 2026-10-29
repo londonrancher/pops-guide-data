@@ -28,7 +28,7 @@ data/                JSON outputs (published as GitHub Pages)
 | `data/costabella-boil.json` | water-daily | Active boil-water notices for WCID #17 |
 
 The boil and burn-ban files are rewritten on every run (daily `lastChecked`), so `water-daily` makes one small commit per day. The sites treat data older than 48 hours as stale and fall back to "check with the source" wording.
-| `data/watering-stages.json` | water-daily | Current stage (1/2/3) for each of 6 districts |
+| `data/watering-stages.json` | water-daily | Current stage for each of 6 districts, plus a `fingerprint` of each district's watering-rule wording and `changedAt` (the CT date that wording last changed). Rewritten every run (daily `lastChecked`). The sites compare `changedAt` with each schedule's `data-verified` date and warn when the district changed its rules after the schedule was verified. |
 | `data/burn-ban.json` | water-daily | Travis County burn-ban status, read from the county page's status banner (`active`, `asOf`, `statusText`). `lastChecked` is rewritten every run so the sites can tell the data is fresh. |
 | `data/cambridge-boil.json` | water-daily | Austin Water boil-water notices for Cambridge Tower (ctowerguide.com), from the City of Austin newsroom RSS |
 | `data/lakeway-meetings.json` | meetings-daily + meetings-watch | Lakeway public meetings (Council, ZAPCO, BOA, Ethics) |

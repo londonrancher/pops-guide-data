@@ -36,6 +36,7 @@ may also return None for stage if their page doesn't use the literal
 needed.
 """
 from __future__ import annotations
+import hashlib
 import json
 import re
 import sys
@@ -65,7 +66,7 @@ DISTRICTS = [
         "key": "lmud",
         "name": "Lakeway MUD",
         "url": "https://lakewaymud.org/",
-        "stagePath": "https://lakewaymud.org/customer-service/water-conservation/",
+        "stagePath": "https://lakewaymud.org/customers/irrigation-schedule/",
         "phone": "512-261-6222",
         "sites": ["lakeway"],
     },
@@ -112,6 +113,28 @@ DISTRICTS = [
 ]
 
 BURN_BAN_URL = "https://www.traviscountytx.gov/fire-marshal/burn-ban"
+
+# Sentences about watering rules; their fingerprint tells the sites when a
+# district's restriction page changed after the site's schedule was verified.
+RESTRICT_WORDS = re.compile(
+    r"(stage\s*[1-4]|watering|irrigat|sprinkler|drought|water\s+restriction|hand[\s-]?water)",
+    re.IGNORECASE,
+)
+STAGE_DOC_HREF = re.compile(r'href="([^"]*stage[^"]*)"', re.IGNORECASE)
+
+
+def restriction_fingerprint(text: str, html: str) -> tuple[str, int]:
+    """Hash of the sentences that mention watering rules, plus links to stage notices."""
+    parts = set()
+    for sent in re.split(r"(?<=[.!?])\s+|\s{2,}|\|", text):
+        sent = re.sub(r"\s+", " ", sent).strip()
+        if 12 <= len(sent) <= 600 and RESTRICT_WORDS.search(sent):
+            parts.add(sent.lower())
+    for href in STAGE_DOC_HREF.findall(html):
+        parts.add("doc:" + href.strip().lower())
+    blob = "\n".join(sorted(parts))
+    return hashlib.sha256(blob.encode("utf-8")).hexdigest()[:16], len(parts)
+
 
 BOIL_PATTERNS = re.compile(
     r"(boil[\s-]?water\s+notice|boil\s+water\s+advisory|do\s+not\s+drink|boil\s+water\s+order)",
@@ -201,6 +224,8 @@ def check_district(d: dict) -> dict:
         "boilContext": None,          # short excerpt around the match, for debugging
         "fetched": True,
         "fetchMethod": None,          # "httpx" or "playwright"
+        "fingerprint": None,          # hash of the watering-rule sentences on the page
+        "fingerprintParts": 0,
     }
 
     html, method = fetch_with_fallback(d["stagePath"])
@@ -210,6 +235,8 @@ def check_district(d: dict) -> dict:
         return state
 
     text = BeautifulSoup(html, "html.parser").get_text(" ", strip=True)
+    state["fingerprint"], state["fingerprintParts"] = restriction_fingerprint(
+        BeautifulSoup(html, "html.parser").get_text("  ", strip=True), html)
 
     # Stage detection: try clean text first (catches "Stage N" in visible
     # page copy), then fall back to raw HTML (catches "Stage N Water
@@ -380,26 +407,43 @@ def main() -> int:
     # 2. Hit burn-ban page
     burn = check_burn_ban()
 
-    # 3. Write canonical watering-stages.json
+    # 3. Write canonical watering-stages.json (rewritten every run; carries
+    #    per-district restriction-page fingerprints and the date each changed)
+    prev = {}
+    try:
+        old = json.loads((DATA_DIR / "watering-stages.json").read_text(encoding="utf-8"))
+        prev = {d.get("key"): d for d in old.get("districts", [])}
+    except Exception:
+        pass
+    today_ct = now_iso_ct()[:10]
+    rows = []
+    for d in district_states:
+        p = prev.get(d["key"], {})
+        fp, changed = d["fingerprint"], p.get("changedAt")
+        if not d["fetched"] or not fp or not d["fingerprintParts"]:
+            fp = p.get("fingerprint")          # couldn't read it today: keep yesterday's
+        elif p.get("fingerprint") and p.get("fingerprint") != fp:
+            changed = today_ct                 # restriction wording changed today
+        rows.append({
+            "key": d["key"],
+            "name": d["name"],
+            "stage": d["stage"],
+            "boilNotice": d["boilNotice"],
+            "fetched": d["fetched"],
+            "fetchMethod": d["fetchMethod"],
+            "fingerprint": fp,
+            "changedAt": changed,
+            "url": d["url"],
+            "restrictionsUrl": d["stageDetectedFrom"] or next((x["stagePath"] for x in DISTRICTS if x["key"] == d["key"]), d["url"]),
+            "phone": d["phone"],
+            "sites": d["sites"],
+        })
     stages_payload = {
         "lastChecked": now_iso_ct(),
         "lastCheckedUtc": utc_iso(),
-        "districts": [
-            {
-                "key": d["key"],
-                "name": d["name"],
-                "stage": d["stage"],
-                "boilNotice": d["boilNotice"],
-                "fetched": d["fetched"],
-                "fetchMethod": d["fetchMethod"],
-                "url": d["url"],
-                "phone": d["phone"],
-                "sites": d["sites"],
-            }
-            for d in district_states
-        ],
+        "districts": rows,
     }
-    stages_changed = write_json_atomic(DATA_DIR / "watering-stages.json", stages_payload)
+    stages_changed = write_json_atomic(DATA_DIR / "watering-stages.json", stages_payload, ignore_keys=[])
 
     # 4. Write burn-ban.json
     burn_payload = {
