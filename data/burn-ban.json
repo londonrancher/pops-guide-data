@@ -1,10 +1,10 @@
 {
-  "lastChecked": "2026-11-02T14:51:31-06:00",
-  "lastCheckedUtc": "2026-11-02T20:51:31Z",
+  "lastChecked": "2026-11-03T10:27:36-06:00",
+  "lastCheckedUtc": "2026-11-03T16:27:36Z",
   "url": "https://www.traviscountytx.gov/fire-marshal/burn-ban",
-  "active": true,
+  "active": false,
   "fetched": true,
-  "asOf": "8/11/26",
-  "statusText": "Burn Ban in Effect As of 8/11/26, outdoor burning is prohibited in Travis County. Visit the County Clerk’s website under \"Posted Documents\" for the official order.",
-  "evidence": "status banner says a burn ban is in effect"
+  "asOf": null,
+  "statusText": "No Burn Ban in Effect Outdoor burning is currently allowed in Travis County. Contact your local ESD for permit information. Always follow local fire safety guidelines.",
+  "evidence": "status banner says no burn ban / lifted"
 }
