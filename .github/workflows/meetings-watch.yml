@@ -4,14 +4,14 @@ on:
   schedule:
     # 16:00 UTC = 11 AM CDT / 10 AM CST
     # 20:00 UTC = 3 PM CDT / 2 PM CST
-    - cron: '0 16,20 * * *'
+    - cron: '7 16,20 * * *'
   workflow_dispatch: {}
 
 permissions:
   contents: write
 
 concurrency:
-  group: meetings-watch
+  group: pops-data-commit
   cancel-in-progress: false
 
 jobs:
@@ -68,6 +68,11 @@ jobs:
             echo "No data changes; skipping commit."
           else
             git commit -m "auto(meetings-watch): $(date -u +'%Y-%m-%dT%H:%M:%SZ')"
-            git pull --rebase || true
-            git push
+            # Serialize with every other data workflow (shared concurrency group) and retry the push:
+            # a parallel commit from another workflow used to reject this push.
+            for i in 1 2 3 4 5; do
+              git pull --rebase && git push && break
+              echo "push attempt $i failed; retrying"; sleep $((i*10))
+            done
+            git push || { echo 'push failed after retries'; exit 1; }
           fi

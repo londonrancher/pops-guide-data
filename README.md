@@ -32,7 +32,7 @@ The boil and burn-ban files are rewritten on every run (daily `lastChecked`), so
 | `data/burn-ban.json` | water-daily | Travis County burn-ban status, read from the county page's status banner (`active`, `asOf`, `statusText`). `lastChecked` is rewritten every run so the sites can tell the data is fresh. |
 | `data/cambridge-boil.json` | water-daily | Austin Water boil-water notices for Cambridge Tower (ctowerguide.com), from the City of Austin newsroom RSS |
 | `data/lakeway-meetings.json` | meetings-daily + meetings-watch | Lakeway public meetings (Council, ZAPCO, BOA, Ethics) |
-| `data/hills-meetings.json` | meetings-daily + meetings-watch | Hills Village Council meetings |
+| `data/hills-meeting.json` | meetings-daily | Hills Village Council meeting (2nd-Tuesday rule; the site reads this exact name) |
 | `data/lake-travis-level.json` | lake-level-daily | Current Lake Travis elevation + percent-full |
 | `data/solid-waste-rates.json` | solid-waste-weekly | Lakeway Solid Waste pricing |
 | `data/parks-closures.json` | parks-closures-weekly | LCRA + Travis County park closures |
@@ -43,14 +43,16 @@ The boil and burn-ban files are rewritten on every run (daily `lastChecked`), so
 
 | Workflow | Cron (UTC) | Frequency | Source |
 |---|---|---|---|
-| `water-daily.yml` | `30 11 * * *` | 6:30 AM CT daily | LMUD, HCM, WCID#17, Crossroads, Travis Co burn-ban |
-| `lake-level-daily.yml` | `0 13 * * *` | 8:00 AM CT daily | Water Data for Texas / LCRA hydromet |
-| `meetings-daily.yml` | `30 11 * * *` | 6:30 AM CT daily | CivicWeb (Playwright) |
-| `meetings-watch.yml` | `0 16,20 * * *` | 11 AM + 3 PM CT daily | CivicWeb per-meeting pages (Playwright) |
-| `solid-waste-weekly.yml` | `0 14 * * 1` | Mon 9 AM CT | lakeway-tx.gov |
-| `link-validator-weekly.yml` | `0 13 * * 0` | Sun 8 AM CT | All 3 sites + every external link |
-| `parks-closures-weekly.yml` | `0 12 * * 3` | Wed 7 AM CT | parks.traviscountytx.gov, lcraparks.com |
-| `monthly-sweep.yml` | `0 12 1 * *` | 1st of month, 7 AM CT | Various |
+| `water-daily.yml` | `17 11,14 * * *` | 6:17 and 9:17 AM CDT daily (two slots) | LMUD, HCM, WCID#17, Crossroads, Travis Co burn-ban |
+| `lake-level-daily.yml` | `11 13 * * *` | 8:00 AM CT daily | Water Data for Texas / LCRA hydromet |
+| `meetings-daily.yml` | `23 11,14 * * *` | 6:23 and 9:23 AM CDT daily (two slots) | CivicWeb (Playwright) |
+| `meetings-watch.yml` | `7 16,20 * * *` | 11 AM + 3 PM CT daily | CivicWeb per-meeting pages (Playwright) |
+| `solid-waste-weekly.yml` | `13 14 * * 1` | Mon 9 AM CT | lakeway-tx.gov |
+| `link-validator-weekly.yml` | `9 13 * * 0` | Sun 8 AM CT | All 3 sites + every external link |
+| `parks-closures-weekly.yml` | `5 12 * * 3` | Wed 7 AM CT | parks.traviscountytx.gov, lcraparks.com |
+| `monthly-sweep.yml` | `3 12 1 * *` | 1st of month, 7 AM CT | Various |
+
+> **Reliability note (Nov 2026):** GitHub starts scheduled jobs on :00/:30 minutes hours late; the crons above use odd minutes and the two daily feeds have a second slot. All workflows share one concurrency group (`pops-data-commit`) and retry the push, because parallel commits used to reject each other. Weekly and monthly scripts only rewrite their JSON when the data changed, so an old `lastChecked` there is normal.
 
 > **DST note:** GitHub Actions cron runs in UTC. The above expressions match CDT (summer). Times drift back 1 hour during CST (winter, Nov–Mar). Each script also stamps the actual CT time it ran, so you can always tell when data was captured.
 

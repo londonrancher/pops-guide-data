@@ -2,16 +2,18 @@ name: Water + Boil + Burn (Daily 6:30 AM CT)
 
 on:
   schedule:
-    # 11:30 UTC = 6:30 AM CDT (summer) / 5:30 AM CST (winter).
-    # GH Actions cron is UTC-only; the 1-hour winter drift is acceptable.
-    - cron: '30 11 * * *'
+    # Two slots a day (11:17 and 14:17 UTC = 6:17/9:17 AM CDT, 5:17/8:17 AM CST). GitHub often
+    # starts :00/:30 jobs hours late; odd minutes and a second slot keep the data under 24 h old.
+    # The shared concurrency group serializes commits across every data workflow.
+    - cron: '17 11 * * *'
+    - cron: '17 14 * * *'
   workflow_dispatch: {}
 
 permissions:
   contents: write
 
 concurrency:
-  group: water-daily
+  group: pops-data-commit
   cancel-in-progress: false
 
 jobs:
@@ -71,7 +73,11 @@ jobs:
             echo "No data changes; skipping commit."
           else
             git commit -m "auto(water-daily): refresh at $(date -u +'%Y-%m-%dT%H:%M:%SZ')"
-            # Pull --rebase before push in case meetings-daily committed in parallel
-            git pull --rebase || true
-            git push
+            # Serialize with every other data workflow (shared concurrency group) and retry the push:
+            # a parallel commit from another workflow used to reject this push.
+            for i in 1 2 3 4 5; do
+              git pull --rebase && git push && break
+              echo "push attempt $i failed; retrying"; sleep $((i*10))
+            done
+            git push || { echo 'push failed after retries'; exit 1; }
           fi

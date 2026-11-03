@@ -3,14 +3,14 @@ name: External Link Health (Sun 8 AM CT)
 on:
   schedule:
     # 13:00 UTC = 8 AM CDT / 7 AM CST. Sundays only.
-    - cron: '0 13 * * 0'
+    - cron: '9 13 * * 0'
   workflow_dispatch: {}
 
 permissions:
   contents: write
 
 concurrency:
-  group: link-validator-weekly
+  group: pops-data-commit
   cancel-in-progress: false
 
 jobs:
@@ -45,6 +45,11 @@ jobs:
             echo "No data changes; skipping commit."
           else
             git commit -m "auto(link-validator): $(date -u +'%Y-%m-%dT%H:%M:%SZ')"
-            git pull --rebase || true
-            git push
+            # Serialize with every other data workflow (shared concurrency group) and retry the push:
+            # a parallel commit from another workflow used to reject this push.
+            for i in 1 2 3 4 5; do
+              git pull --rebase && git push && break
+              echo "push attempt $i failed; retrying"; sleep $((i*10))
+            done
+            git push || { echo 'push failed after retries'; exit 1; }
           fi

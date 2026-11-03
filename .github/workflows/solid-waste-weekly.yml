@@ -3,14 +3,14 @@ name: Lakeway Solid Waste Rates (Mon 9 AM CT)
 on:
   schedule:
     # 14:00 UTC = 9 AM CDT / 8 AM CST. Mondays only.
-    - cron: '0 14 * * 1'
+    - cron: '13 14 * * 1'
   workflow_dispatch: {}
 
 permissions:
   contents: write
 
 concurrency:
-  group: solid-waste-weekly
+  group: pops-data-commit
   cancel-in-progress: false
 
 jobs:
@@ -67,6 +67,11 @@ jobs:
             echo "No data changes; skipping commit."
           else
             git commit -m "auto(solid-waste-weekly): $(date -u +'%Y-%m-%dT%H:%M:%SZ')"
-            git pull --rebase || true
-            git push
+            # Serialize with every other data workflow (shared concurrency group) and retry the push:
+            # a parallel commit from another workflow used to reject this push.
+            for i in 1 2 3 4 5; do
+              git pull --rebase && git push && break
+              echo "push attempt $i failed; retrying"; sleep $((i*10))
+            done
+            git push || { echo 'push failed after retries'; exit 1; }
           fi

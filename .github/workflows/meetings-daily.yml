@@ -2,16 +2,16 @@ name: Lakeway Meetings — Full Refresh (Daily 6:30 AM CT)
 
 on:
   schedule:
-    # 11:30 UTC = 6:30 AM CDT (summer) / 5:30 AM CST (winter).
-    # Same minute as water-daily; they run in parallel.
-    - cron: '30 11 * * *'
+    # Two slots a day (11:23 and 14:23 UTC); see water-daily.yml for why.
+    - cron: '23 11 * * *'
+    - cron: '23 14 * * *'
   workflow_dispatch: {}
 
 permissions:
   contents: write
 
 concurrency:
-  group: meetings-daily
+  group: pops-data-commit
   cancel-in-progress: false
 
 jobs:
@@ -74,6 +74,11 @@ jobs:
           else
             git commit -m "auto(meetings-daily): $(date -u +'%Y-%m-%dT%H:%M:%SZ')"
             # Pull --rebase before push in case water-daily committed in parallel
-            git pull --rebase || true
-            git push
+            # Serialize with every other data workflow (shared concurrency group) and retry the push:
+            # a parallel commit from another workflow used to reject this push.
+            for i in 1 2 3 4 5; do
+              git pull --rebase && git push && break
+              echo "push attempt $i failed; retrying"; sleep $((i*10))
+            done
+            git push || { echo 'push failed after retries'; exit 1; }
           fi
