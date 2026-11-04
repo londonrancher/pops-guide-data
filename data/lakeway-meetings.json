@@ -1,6 +1,6 @@
 {
   "lastUpdated": "2026-11-04",
-  "lastUpdatedAt": "2026-11-04T12:45:37-06:00",
+  "lastUpdatedAt": "2026-11-04T14:52:01-06:00",
   "source": "https://lakeway-tx.civicweb.net/Portal/MeetingSchedule.aspx",
   "publicCommentPortal": "https://lakeway-tx.civicweb.net/Portal/CitizenEngagement.aspx",
   "watchLiveOrArchive": "https://www.lakeway-tx.gov/1062/Videos--Meetings-Events",
@@ -19,6 +19,20 @@
       "status": "scheduled",
       "agendaUrl": "https://lakeway-tx.civicweb.net/document/104179?printPdf=true",
       "packetUrl": "https://lakeway-tx.civicweb.net/document/104178"
+    },
+    {
+      "id": 2323,
+      "type": "boa",
+      "title": "BOA Meeting",
+      "date": "2026-11-12",
+      "weekday": "Thursday",
+      "time": "9:00 AM",
+      "location": "Lakeway City Hall, 1102 Lohmans Crossing Rd",
+      "url": "https://lakeway-tx.civicweb.net/Portal/MeetingInformation.aspx?Org=Cal&Id=2323",
+      "livestreamed": true,
+      "status": "scheduled",
+      "agendaUrl": "https://lakeway-tx.civicweb.net/document/104246?printPdf=true",
+      "packetUrl": "https://lakeway-tx.civicweb.net/document/104245"
     }
   ]
 }
