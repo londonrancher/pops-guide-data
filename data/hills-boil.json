@@ -1,7 +1,9 @@
 {
   "site": "hills",
-  "lastChecked": "2026-11-09T15:29:21-06:00",
-  "lastCheckedUtc": "2026-11-09T21:29:21Z",
-  "districtsUnreachable": [],
+  "lastChecked": "2026-11-09T17:28:44-06:00",
+  "lastCheckedUtc": "2026-11-09T23:28:44Z",
+  "districtsUnreachable": [
+    "Hurst Creek MUD"
+  ],
   "notices": []
 }
