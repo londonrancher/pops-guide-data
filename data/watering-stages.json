@@ -1,6 +1,6 @@
 {
-  "lastChecked": "2026-11-09T17:28:44-06:00",
-  "lastCheckedUtc": "2026-11-09T23:28:44Z",
+  "lastChecked": "2026-11-10T12:42:03-06:00",
+  "lastCheckedUtc": "2026-11-10T18:42:03Z",
   "districts": [
     {
       "key": "lmud",
@@ -23,8 +23,8 @@
       "name": "Hurst Creek MUD",
       "stage": null,
       "boilNotice": false,
-      "fetched": false,
-      "fetchMethod": "failed",
+      "fetched": true,
+      "fetchMethod": "httpx",
       "fingerprint": "5ff98d2aee395ef3",
       "changedAt": null,
       "url": "https://hurstcreekmud.org/",
