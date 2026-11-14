@@ -1,6 +1,6 @@
 {
-  "lastUpdated": "2026-11-13",
-  "lastUpdatedAt": "2026-11-13T14:56:15-06:00",
+  "lastUpdated": "2026-11-14",
+  "lastUpdatedAt": "2026-11-14T11:14:21-06:00",
   "source": "https://lakeway-tx.civicweb.net/Portal/MeetingSchedule.aspx",
   "publicCommentPortal": "https://lakeway-tx.civicweb.net/Portal/CitizenEngagement.aspx",
   "watchLiveOrArchive": "https://www.lakeway-tx.gov/1062/Videos--Meetings-Events",
@@ -19,6 +19,20 @@
       "status": "scheduled",
       "agendaUrl": "https://lakeway-tx.civicweb.net/document/104273?printPdf=true",
       "packetUrl": "https://lakeway-tx.civicweb.net/document/104272"
+    },
+    {
+      "id": 2324,
+      "type": "ethics",
+      "title": "Board of Ethics Meeting",
+      "date": "2026-11-19",
+      "weekday": "Thursday",
+      "time": "9:00 AM",
+      "location": "Lakeway City Hall, 1102 Lohmans Crossing Rd",
+      "url": "https://lakeway-tx.civicweb.net/Portal/MeetingInformation.aspx?Org=Cal&Id=2324",
+      "livestreamed": false,
+      "status": "scheduled",
+      "agendaUrl": "https://lakeway-tx.civicweb.net/document/104382?printPdf=true",
+      "packetUrl": "https://lakeway-tx.civicweb.net/document/104381"
     }
   ]
 }
