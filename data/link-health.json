@@ -1,6 +1,6 @@
 {
-  "lastChecked": "2026-11-08T12:19:51-06:00",
-  "lastCheckedUtc": "2026-11-08T18:19:51Z",
+  "lastChecked": "2026-11-15T13:21:12-06:00",
+  "lastCheckedUtc": "2026-11-15T19:21:12Z",
   "sites": {
     "lakeway": "https://lakewayguide.com/",
     "hills": "https://thehillsguide.com/",
@@ -10,19 +10,8 @@
   "totalUrls": 162,
   "probed": 127,
   "skipped": 35,
-  "brokenCount": 10,
+  "brokenCount": 3,
   "broken": [
-    {
-      "url": "https://laketravislibrary.org/",
-      "status": 403,
-      "method": "GET",
-      "error": null,
-      "sites": [
-        "costabella",
-        "hills",
-        "lakeway"
-      ]
-    },
     {
       "url": "https://londonrancher.github.io/pops-guide-data/data/",
       "status": 404,
@@ -44,64 +33,6 @@
       ]
     },
     {
-      "url": "https://www.commoncause.org/find-your-representative/",
-      "status": 403,
-      "method": "GET",
-      "error": null,
-      "sites": [
-        "costabella",
-        "hills",
-        "lakeway"
-      ]
-    },
-    {
-      "url": "https://www.earthlink.net/",
-      "status": 403,
-      "method": "GET",
-      "error": null,
-      "sites": [
-        "hills"
-      ]
-    },
-    {
-      "url": "https://www.lcra.org/water/highland-lakes-overview/",
-      "status": 403,
-      "method": "GET",
-      "error": null,
-      "sites": [
-        "lakeway"
-      ]
-    },
-    {
-      "url": "https://www.lcra.org/water/permits-contracts/on-site-sewage/",
-      "status": 403,
-      "method": "GET",
-      "error": null,
-      "sites": [
-        "lakeway"
-      ]
-    },
-    {
-      "url": "https://www.ltfr.org/",
-      "status": 403,
-      "method": "GET",
-      "error": null,
-      "sites": [
-        "costabella",
-        "hills"
-      ]
-    },
-    {
-      "url": "https://www.texas811.org",
-      "status": 403,
-      "method": "GET",
-      "error": null,
-      "sites": [
-        "costabella",
-        "hills"
-      ]
-    },
-    {
       "url": "https://www.warncentraltexas.org/",
       "status": 403,
       "method": "GET",
@@ -113,26 +44,9 @@
   ],
   "skippedUrls": [
     {
-      "url": "https://www.wcid17.org/water-restrictions-and-conservation/",
+      "url": "https://hurstcreekmud.org/",
       "sites": [
-        "lakeway"
-      ]
-    },
-    {
-      "url": "https://lakewaytx-energovweb.tylerhost.net/apps/selfservice#/home",
-      "sites": [
-        "lakeway"
-      ]
-    },
-    {
-      "url": "https://www.zillow.com/lakeway-tx/",
-      "sites": [
-        "lakeway"
-      ]
-    },
-    {
-      "url": "https://www.realtor.com/local/market/texas/travis-county/lakeway",
-      "sites": [
+        "hills",
         "lakeway"
       ]
     },
@@ -145,14 +59,52 @@
       ]
     },
     {
-      "url": "https://www.facebook.com/groups/lakewayswap/",
+      "url": "https://www.zillow.com/lakeway-tx/",
+      "sites": [
+        "lakeway"
+      ]
+    },
+    {
+      "url": "https://lakewaymud.org/about-us/service-area/",
+      "sites": [
+        "lakeway"
+      ]
+    },
+    {
+      "url": "https://static.cloudflareinsights.com/beacon.min.js/vce701823e78c4301a35b7e07294d87301792088814092",
+      "sites": [
+        "costabella",
+        "hills",
+        "lakeway"
+      ]
+    },
+    {
+      "url": "https://www.realtor.com/local/market/texas/travis-county/lakeway",
+      "sites": [
+        "lakeway"
+      ]
+    },
+    {
+      "url": "https://www.wcid17.org/",
       "sites": [
         "costabella",
         "lakeway"
       ]
     },
     {
-      "url": "https://map.mypec.com/",
+      "url": "https://lakewaytx-energovweb.tylerhost.net/apps/selfservice#/home",
+      "sites": [
+        "lakeway"
+      ]
+    },
+    {
+      "url": "https://lakeway-tx.civicweb.net/Portal/CitizenEngagement.aspx",
+      "sites": [
+        "lakeway"
+      ]
+    },
+    {
+      "url": "https://members.invitedclubs.com/club/scripts/login/login.asp",
       "sites": [
         "hills",
         "lakeway"
@@ -165,13 +117,7 @@
       ]
     },
     {
-      "url": "https://lakeway-tx.civicweb.net/Portal/CitizenEngagement.aspx",
-      "sites": [
-        "lakeway"
-      ]
-    },
-    {
-      "url": "https://lakewaymud.org/about-us/service-area/",
+      "url": "https://portal.camanagers.com/login",
       "sites": [
         "lakeway"
       ]
@@ -185,23 +131,33 @@
       ]
     },
     {
-      "url": "https://static.cloudflareinsights.com/beacon.min.js/vce701823e78c4301a35b7e07294d87301792088814092",
+      "url": "https://www.facebook.com/groups/PreserveatLakeway/",
       "sites": [
-        "costabella",
+        "lakeway"
+      ]
+    },
+    {
+      "url": "https://www.wcid17.org/water-restrictions-and-conservation/",
+      "sites": [
+        "lakeway"
+      ]
+    },
+    {
+      "url": "https://map.mypec.com/",
+      "sites": [
         "hills",
         "lakeway"
       ]
     },
     {
-      "url": "https://portal.camanagers.com/login",
+      "url": "https://lakewaymud.org/",
       "sites": [
         "lakeway"
       ]
     },
     {
-      "url": "https://www.wcid17.org/",
+      "url": "https://lakeway-tx.civicweb.net/Portal/MeetingSchedule.aspx",
       "sites": [
-        "costabella",
         "lakeway"
       ]
     },
@@ -213,34 +169,9 @@
       ]
     },
     {
-      "url": "https://lakeway-tx.civicweb.net/Portal/MeetingSchedule.aspx",
+      "url": "https://www.facebook.com/groups/lakewayswap/",
       "sites": [
-        "lakeway"
-      ]
-    },
-    {
-      "url": "https://lakewaymud.org/",
-      "sites": [
-        "lakeway"
-      ]
-    },
-    {
-      "url": "https://hurstcreekmud.org/",
-      "sites": [
-        "hills",
-        "lakeway"
-      ]
-    },
-    {
-      "url": "https://www.facebook.com/groups/PreserveatLakeway/",
-      "sites": [
-        "lakeway"
-      ]
-    },
-    {
-      "url": "https://members.invitedclubs.com/club/scripts/login/login.asp",
-      "sites": [
-        "hills",
+        "costabella",
         "lakeway"
       ]
     },
@@ -253,6 +184,30 @@
       ]
     },
     {
+      "url": "https://m.facebook.com/groups/thehillstexas/",
+      "sites": [
+        "hills"
+      ]
+    },
+    {
+      "url": "https://www.facebook.com/groups/731772939060962",
+      "sites": [
+        "hills"
+      ]
+    },
+    {
+      "url": "https://buurt.ccmcnet.com",
+      "sites": [
+        "hills"
+      ]
+    },
+    {
+      "url": "https://www.zillow.com/the-hills-tx",
+      "sites": [
+        "hills"
+      ]
+    },
+    {
       "url": "https://www.realtor.com/local/market/texas/travis-county/the-hills",
       "sites": [
         "hills"
@@ -260,12 +215,6 @@
     },
     {
       "url": "https://www.googletagmanager.com/gtag/js?id=G-61J0DN1KPZ",
-      "sites": [
-        "hills"
-      ]
-    },
-    {
-      "url": "https://hurstcreekmud.org",
       "sites": [
         "hills"
       ]
@@ -283,25 +232,7 @@
       ]
     },
     {
-      "url": "https://m.facebook.com/groups/thehillstexas/",
-      "sites": [
-        "hills"
-      ]
-    },
-    {
-      "url": "https://www.facebook.com/groups/731772939060962",
-      "sites": [
-        "hills"
-      ]
-    },
-    {
-      "url": "https://www.zillow.com/the-hills-tx",
-      "sites": [
-        "hills"
-      ]
-    },
-    {
-      "url": "https://buurt.ccmcnet.com",
+      "url": "https://hurstcreekmud.org",
       "sites": [
         "hills"
       ]
@@ -313,7 +244,7 @@
       ]
     },
     {
-      "url": "https://qrco.de/CBMarinaRules",
+      "url": "https://portal.camanagers.com/public?modal=login",
       "sites": [
         "costabella"
       ]
@@ -331,7 +262,7 @@
       ]
     },
     {
-      "url": "https://portal.camanagers.com/public?modal=login",
+      "url": "https://qrco.de/CBMarinaRules",
       "sites": [
         "costabella"
       ]
