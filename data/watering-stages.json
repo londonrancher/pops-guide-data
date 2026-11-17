@@ -1,14 +1,14 @@
 {
-  "lastChecked": "2026-11-16T17:26:19-06:00",
-  "lastCheckedUtc": "2026-11-16T23:26:19Z",
+  "lastChecked": "2026-11-17T13:54:01-06:00",
+  "lastCheckedUtc": "2026-11-17T19:54:01Z",
   "districts": [
     {
       "key": "lmud",
       "name": "Lakeway MUD",
-      "stage": null,
+      "stage": 1,
       "boilNotice": false,
       "fetched": true,
-      "fetchMethod": "playwright",
+      "fetchMethod": "httpx",
       "fingerprint": "4b4659255e1dbfcf",
       "changedAt": null,
       "url": "https://lakewaymud.org/",
