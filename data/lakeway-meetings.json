@@ -1,9 +1,24 @@
 {
-  "lastUpdated": "2026-11-22",
-  "lastUpdatedAt": "2026-11-22T14:47:04-06:00",
+  "lastUpdated": "2026-11-23",
+  "lastUpdatedAt": "2026-11-23T16:46:52-06:00",
   "source": "https://lakeway-tx.civicweb.net/Portal/MeetingSchedule.aspx",
   "publicCommentPortal": "https://lakeway-tx.civicweb.net/Portal/CitizenEngagement.aspx",
   "watchLiveOrArchive": "https://www.lakeway-tx.gov/1062/Videos--Meetings-Events",
   "lookAheadDays": 90,
-  "meetings": []
+  "meetings": [
+    {
+      "id": 2287,
+      "type": "zapco",
+      "title": "ZAPCO Regular Meeting",
+      "date": "2026-12-02",
+      "weekday": "Wednesday",
+      "time": "9:00 AM",
+      "location": "Lakeway City Hall, 1102 Lohmans Crossing Rd",
+      "url": "https://lakeway-tx.civicweb.net/Portal/MeetingInformation.aspx?Org=Cal&Id=2287",
+      "livestreamed": true,
+      "status": "scheduled",
+      "agendaUrl": "https://lakeway-tx.civicweb.net/document/104438?printPdf=true",
+      "packetUrl": "https://lakeway-tx.civicweb.net/document/104437"
+    }
+  ]
 }
